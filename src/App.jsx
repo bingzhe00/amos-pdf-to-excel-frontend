@@ -15,31 +15,42 @@ function App() {
   }
 
   const handleConvert = async () => {
-    if (!selectedFile) return
+  if (!selectedFile) return
 
-    const formData = new FormData()
-    formData.append('file', selectedFile)
-    formData.append('pages', pages) // add pages to form data
+  const formData = new FormData()
+  formData.append('file', selectedFile)
+  formData.append('pages', pages)
 
-    try {
-      const response = await axios.post(
-        'https://amos-pdf-to-excel-backend-production.up.railway.app/convert',
-        formData,
-        { responseType: 'blob' } // important for file download
-      )
+  try {
+    const response = await axios.post(
+      'https://amos-pdf-to-excel-backend-production.up.railway.app/convert',
+      formData,
+      { responseType: 'blob' }
+    )
 
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', 'converted.xlsx')
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-    } catch (error) {
-      console.error('Error converting file:', error)
-      alert('Failed to convert the file. Please check the pages input or try again.')
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'converted.xlsx')
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+  } catch (error) {
+    console.error('Error converting file:', error)
+
+    if (error.response) {
+      // Try to read backend error text from the blob
+      const reader = new FileReader()
+      reader.onload = () => {
+        alert(`Backend error: ${reader.result}`)
+      }
+      reader.readAsText(error.response.data)
+    } else {
+      alert('Failed to convert the file. Network error or unknown issue.')
     }
   }
+}
+
 
   return (
     <>
