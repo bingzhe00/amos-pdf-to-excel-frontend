@@ -21,7 +21,7 @@ function App() {
     formData.append('file', selectedFile)
 
     try {
-      const response = await axios.post('http://127.0.0.1:5000/convert', formData, {
+      const response = await axios.post('amos-pdf-to-excel-backend-production.up.railway.app/convert', formData, {
         responseType: 'blob', // important for file download
       })
 
