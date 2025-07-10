@@ -4,13 +4,13 @@ import './App.css'
 
 function App() {
   const [selectedFile, setSelectedFile] = useState(null)
+  const [pages, setPages] = useState('') // new state for page numbers
 
   function handleFileChange(event) {
     const file = event.target.files[0]
     if (file) {
       console.log('Selected file:', file)
       setSelectedFile(file)
-      // Removed setFileName(file.name)
     }
   }
 
@@ -19,11 +19,14 @@ function App() {
 
     const formData = new FormData()
     formData.append('file', selectedFile)
+    formData.append('pages', pages) // add pages to form data
 
     try {
-      const response = await axios.post('amos-pdf-to-excel-backend-production.up.railway.app/convert', formData, {
-        responseType: 'blob', // important for file download
-      })
+      const response = await axios.post(
+        'https://amos-pdf-to-excel-backend-production.up.railway.app/convert',
+        formData,
+        { responseType: 'blob' } // important for file download
+      )
 
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
@@ -34,7 +37,7 @@ function App() {
       link.remove()
     } catch (error) {
       console.error('Error converting file:', error)
-      alert('Failed to convert the file. Please try again.')
+      alert('Failed to convert the file. Please check the pages input or try again.')
     }
   }
 
@@ -45,7 +48,12 @@ function App() {
       </div>
       <div className="card">
         <input type="file" onChange={handleFileChange} accept=".pdf" />
-        {/* Removed {fileName} display */}
+        <input
+          type="text"
+          placeholder="Pages (e.g., 1,2,5 or 1-3)"
+          value={pages}
+          onChange={(e) => setPages(e.target.value)}
+        />
         <button onClick={handleConvert} disabled={!selectedFile}>
           Convert to Excel
         </button>
